@@ -6,10 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.StandardWatchEventKinds.*;
-import static java.nio.file.StandardCopyOption.*;
 
 /**
  * This class demonstrates basic usage of the WatchService API introduced in Java 7.
@@ -93,7 +92,7 @@ public class WatchServiceExample {
 
 		private Path watchDir;
 		private boolean ready = false;
-		private AtomicBoolean eventReceived = new AtomicBoolean(false);
+		private boolean eventReceived = false;
 
 		public WatchServiceRunner(Path watchDir) {
 			this.watchDir = watchDir;
@@ -104,10 +103,10 @@ public class WatchServiceExample {
 		}
 
 		public void waitForEvent() {
-			while (!eventReceived.get()) {
+			while (!eventReceived) {
 				Thread.yield();
 			}
-			eventReceived.set(false);
+			eventReceived = false;
 		}
 
 		@Override
@@ -131,7 +130,7 @@ public class WatchServiceExample {
 
 					for (WatchEvent<?> event : key.pollEvents()) {
 						System.out.println("Received " + event.kind() + " event on " + event.context().toString());
-						eventReceived.set(true);
+						eventReceived = true;
 					}
 
 					if (!key.reset()) {
